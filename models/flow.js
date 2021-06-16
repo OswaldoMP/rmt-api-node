@@ -44,6 +44,7 @@ module.exports = (sequelize, DataTypes) => {
         date: DataTypes.DATE,
         version: DataTypes.INTEGER,
         isDelete: DataTypes.BOOLEAN,
+        isPublic: DataTypes.BOOLEAN,
     }, {
         sequelize,
         modelName: 'Flow',

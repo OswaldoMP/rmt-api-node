@@ -30,6 +30,10 @@ module.exports = {
             version: {
                 type: Sequelize.INTEGER
             },
+            isDelete: {
+                type: Sequelize.BOOLEAN,
+                defaultValue: false,
+            },
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE,

@@ -42,7 +42,8 @@ module.exports = (sequelize, DataTypes) => {
         name: DataTypes.STRING,
         typeStep: DataTypes.ARRAY(DataTypes.INTEGER),
         date: DataTypes.DATE,
-        version: DataTypes.INTEGER
+        version: DataTypes.INTEGER,
+        isDelete: DataTypes.BOOLEAN,
     }, {
         sequelize,
         modelName: 'Flow',

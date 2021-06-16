@@ -1,4 +1,3 @@
-const { DATE } = require('sequelize');
 const { Flow, User } = require('../models/index');
 
 const usersFlow = async(req, res) => {
@@ -79,7 +78,7 @@ const create = async(req, res) => {
         if (!flow) {
             return res.status(400).json({
                 ok: false,
-                message: 'Fail create user'
+                message: 'Fail create flow'
             });
         }
 
@@ -110,13 +109,17 @@ const showById = async(req, res) => {
                 { association: 'allUserBrief' },
                 { association: 'allValidateCamera' },
                 { association: 'allSign' },
+                {
+                    association: 'user',
+                    attributes: ['id', 'name', 'mail']
+                }
             ]
         });
 
         if (!flow) {
             return res.status(400).json({
                 ok: false,
-                message: 'There is not user'
+                message: 'There is not flow'
             });
         }
 
@@ -139,45 +142,37 @@ const update = async(req, res) => {
         let id = req.params.id;
         let body = req.body;
         let flowId = req.query.flow;
-        console.log(body);
 
-        if (!body) {
-            let _flow = await Flow.findByPk(flowId, {
-                // attributes: ['id', 'name', 'mail']
-            });
+        let _flow = await Flow.findByPk(flowId, {
+            // attributes: ['id', 'name', 'mail']
+        });
 
-            if (!_flow) {
-                return res.status(400).json({
-                    ok: false,
-                    message: 'There is not flow'
-                });
-            }
-
-            body.version = _flow.version + 1;
-
-            let flow = await Flow.update(body, {
-                where: {
-                    id: id
-                }
-            });
-
-            if (flow[0] == 0) {
-                return res.status(400).json({
-                    ok: false,
-                    message: 'Fail update. There is not flow'
-                });
-            }
-
-            return res.status(200).json({
-                ok: true,
-                flow
-            });
-        } else {
+        if (!_flow) {
             return res.status(400).json({
                 ok: false,
-                message: 'Ther is not data to update'
-            })
+                message: 'There is not flow'
+            });
         }
+
+        body.version = _flow.version + 1;
+
+        let flow = await Flow.update(body, {
+            where: {
+                id: id
+            }
+        });
+
+        if (flow[0] == 0) {
+            return res.status(400).json({
+                ok: false,
+                message: 'Fail update. There is not flow'
+            });
+        }
+
+        return res.status(200).json({
+            ok: true,
+            flow
+        });
 
     } catch (error) {
         return res.status(500).json({
@@ -223,6 +218,79 @@ const destroy = async(req, res) => {
     }
 }
 
+const public = (req, res) => {
+    try {
+        let id = req.params.id
+        Flow.update({
+                isPublic: true
+            }, {
+                where: {
+                    id: id
+                }
+            }).then(data => {
+                if (data > 0) {
+                    return res.status(200).json({
+                        ok: true,
+                        data
+                    });
+                }
+                return res.status(400).json({
+                    ok: false,
+                    message: 'There is not user brief'
+                });
+            })
+            .catch(erro => {
+                return res.status(500).json({
+                    ok: false,
+                    message: {
+                        erro
+                    }
+                })
+            })
+    } catch (error) {
+        return res.status(500).json({
+            ok: false,
+            message: {
+                error
+            }
+        });
+    }
+}
+
+const showPublic = async(req, res) => {
+    try {
+        let publicFlows = await Flow.findAll({
+            where: {
+                isDelete: false,
+                isPublic: true
+            },
+            include: [{
+                association: 'user',
+                attributes: ['id', 'name', 'mail']
+            }]
+        });
+
+        if (publicFlows.length > 0) {
+            return res.status(200).json({
+                ok: true,
+                publicFlows
+            });
+        }
+
+        return res.status(400).json({
+            ok: false,
+            message: 'There are not public flows'
+        });
+    } catch (error) {
+        return res.status(500).json({
+            ok: false,
+            message: {
+                error
+            }
+        });
+    }
+}
+
 module.exports = {
     show,
     create,
@@ -230,4 +298,6 @@ module.exports = {
     showById,
     update,
     destroy,
+    public,
+    showPublic
 }

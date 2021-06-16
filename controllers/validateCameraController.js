@@ -31,7 +31,7 @@ const create = async(req, res) => {
         let id_flow = req.query.flow;
         body.id_flow = id_flow;
         console.log(req.file);
-        body.file = `files/${req.file.filename}`;
+        body.file = `files/camera/${req.file.filename}`;
 
         verificationFlow(id_flow).then(async(data) => {
             if (data) {

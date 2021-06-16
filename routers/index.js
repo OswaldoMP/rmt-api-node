@@ -8,6 +8,7 @@ app.use('/api/v1/public-flows', require('../controllers/flowController').showPub
 app.use('/api/v1/flow', require('./flowRouter'));
 app.use('/api/v1/user-brief', require('./userBriefRouter'));
 app.use('/api/v1/validate-camera', require('./validateCameraRotuer'));
+app.use('/api/v1/sign', require('./signRouter'));
 
 app.use('/check', (req, res) => {
     res.status(200).json({

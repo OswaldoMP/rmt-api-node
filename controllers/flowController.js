@@ -1,4 +1,5 @@
 const { Flow, User } = require('../models/index');
+const jwt = require('jsonwebtoken');
 
 const usersFlow = async(req, res) => {
     try {
@@ -14,10 +15,12 @@ const usersFlow = async(req, res) => {
             });
         }
 
-        user.getAllFlow().then(allFlow => {
+        user.getAllFlow().then(async(allFlow) => {
+            let flows = allFlow.filter(flow => flow.isDelete != true);
+
             return res.status(200).json({
                 ok: true,
-                allFlow
+                flows
             });
         });
     } catch (error) {
@@ -225,7 +228,8 @@ const public = (req, res) => {
                 isPublic: true
             }, {
                 where: {
-                    id: id
+                    id: id,
+                    isDelete: false
                 }
             }).then(data => {
                 if (data > 0) {
@@ -291,6 +295,63 @@ const showPublic = async(req, res) => {
     }
 }
 
+const createToken = async(req, res) => {
+    try {
+        let id = req.params.id;
+
+        let flow = await Flow.findOne({
+            where: {
+                id: id,
+                isDelete: false,
+                isPublic: true
+            },
+            include: [{
+                association: 'user',
+            }]
+        });
+
+        if (!flow) {
+            return res.status(400).json({
+                ok: false,
+                message: 'There is not flow'
+            });
+        }
+
+        let token = jwt.sign({
+            flow
+        }, process.env.SEED, { expiresIn: '5m' });
+
+        return res.status(200).json({
+            ok: true,
+            token
+        });
+    } catch (error) {
+        return res.status(500).json({
+            ok: false,
+            message: {
+                error
+            }
+        });
+    }
+}
+
+const allFlow = async(req, res) => {
+    try {
+        let flows = await Flow.findAll();
+        return res.json({
+            ok: true,
+            flows
+        });
+    } catch (error) {
+        return res.json({
+            ok: false,
+            message: {
+                error
+            }
+        });
+    }
+}
+
 module.exports = {
     show,
     create,
@@ -299,5 +360,7 @@ module.exports = {
     update,
     destroy,
     public,
-    showPublic
+    showPublic,
+    createToken,
+    allFlow
 }

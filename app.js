@@ -3,6 +3,7 @@ const PORT = process.env.PORT;
 
 const express = require('express');
 const cors = require('cors');
+const upload = require('express-fileupload');
 
 const { sequelize } = require('./models/index');
 
@@ -10,7 +11,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(__dirname + '/public'))
+app.use(express.static(__dirname + '/public'));
+app.use(upload({
+    useTempFiles: true,
+    tempFileDir: '/tmp/',
+    createParentPath: true
+}));
 
 app.use(require('./routers/index'));
 

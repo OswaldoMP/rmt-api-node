@@ -17,3 +17,6 @@ process.env.LIFE_TOKEN = '24h';
 
 // ENV
 process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
+
+//CLOUDINARY
+process.env.CLOUDINARY_URL = process.env.CLOUDINARY_URL || 'cloudinary://154273952478772:ZgCCcKCgEbx_L4JMwfgq_ANzD74@dmbcvo5fr'

@@ -1,4 +1,6 @@
 const { Sign, Flow } = require('../models/index');
+const cloudinary = require('cloudinary').v2;
+cloudinary.config(process.env.CLOUDINARY);
 
 const show = async(req, res) => {
     try {
@@ -29,12 +31,13 @@ const create = async(req, res) => {
     try {
         let body = req.body;
         let id_flow = req.query.flow;
-        body.id_flow = id_flow;
-        console.log(req.file);
-        body.file = `files/signs/${req.file.filename}`;
+        let file = req.files.file;
 
+        body.id_flow = id_flow;
         verificationFlow(id_flow).then(async(data) => {
             if (data) {
+                const cloudinaryRes = await cloudinary.uploader.upload(file.tempFilePath);
+                body.file = cloudinaryRes.secure_url;
 
                 let sign = await Sign.create(body);
 

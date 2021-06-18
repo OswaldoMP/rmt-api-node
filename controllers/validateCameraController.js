@@ -1,4 +1,6 @@
 const { ValidateCamera, Flow } = require('../models/index');
+const cloudinary = require('cloudinary').v2;
+cloudinary.config(process.env.CLOUDINARY_URL);
 
 const show = async(req, res) => {
     try {
@@ -29,13 +31,16 @@ const create = async(req, res) => {
     try {
         let body = req.body;
         let id_flow = req.query.flow;
+        let file = req.files.file;
         body.id_flow = id_flow;
-        console.log(req.file);
-        body.file = `files/camera/${req.file.filename}`;
-
+        console.log(file);
         verificationFlow(id_flow).then(async(data) => {
             if (data) {
+                const cloudinaryRes = await cloudinary.uploader.upload(file.tempFilePath, {
+                    resource_type: "video"
+                });
 
+                body.file = cloudinaryRes.secure_url;
                 let camera = await ValidateCamera.create(body);
 
                 if (!camera) {
